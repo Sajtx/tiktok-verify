@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+  <html lang="en">
+  <head>
+  <meta charset="UTF-8">
+  <title>TikTok Login - Callback</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+  body { font-family: -apple-system, Arial, sans-serif; max-width: 600px; margin: 60px auto; padding: 0 20px; line-height: 1.6; color: #222; text-align: center; }
+#status { font-size: 1.1em; margin-top: 30px; }
+pre { text-align: left; background: #f4f4f4; padding: 12px; border-radius: 8px; overflow-x: auto; }
+</style>
+  </head>
+  <body>
+  <h1>TikTok Login</h1>
+  <div id="status">Processing login...</div>
+
+  <script>
+  const params = new URLSearchParams(window.location.search);
+const code = params.get('code');
+const state = params.get('state');
+const error = params.get('error');
+const statusEl = document.getElementById('status');
+
+if (error) {
+  statusEl.innerHTML = '<p style="color:red">Login failed: ' + error + '</p>';
+} else if (!code) {
+  statusEl.innerHTML = '<p style="color:red">No authorization code received.</p>';
+} else {
+  statusEl.innerHTML = '<p>Code received. Sending to local app...</p>';
+  fetch('http://localhost:3000/exchange?code=' + encodeURIComponent(code) + '&state=' + encodeURIComponent(state))
+        .then(r => r.json())
+        .then(data => {
+          if (data.error) {
+            statusEl.innerHTML = '<p style="color:red">Error: ' + data.error + '</p><pre>' + JSON.stringify(data, null, 2) + '</pre>';
+} else {
+        statusEl.innerHTML = '<p style="color:green">Success! Your TikTok data was fetched.</p><pre>' + JSON.stringify(data, null, 2) + '</pre>';
+}
+})
+    .catch(err => {
+            statusEl.innerHTML = '<p style="color:red">Could not reach local app at localhost:3000. Make sure the script is running.</p><p>' + err + '</p>';
+});
+}
+</script>
+  </body>
+  </html>
+  
